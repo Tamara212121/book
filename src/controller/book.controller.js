@@ -40,3 +40,21 @@ export const addBook = async (req, res) => {
         return res.status(500).send({error: error.message, message: 'Failed to add book'});
     }
 }
+
+export const findBookByIsbn = async (req, res) => {
+    const book = await Book.findByPk(req.params.isbn);
+    if (book) {
+        const result = {
+            isbn: book.isbn,
+            title: book.title,
+            publisher: book.publisher,
+            authors: (await book.getAuthors()).map(a => ({
+                name: a.dataValues.name,
+                birthDate: a.dataValues.birth_date
+            }))
+        }
+        return res.json(result);
+    }else {
+        return res.status(404).send({error: `Book with ISBN ${req.params.isbn} not found`});
+    }
+}
